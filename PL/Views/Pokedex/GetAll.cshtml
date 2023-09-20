@@ -1,0 +1,52 @@
+﻿@model ML.Pokemon
+@{
+    ViewData["Title"] = "GetAll";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<div class="loader" style="display: none" id="fade">
+    <div class="text-center">
+        <div class="spinner-border" id="img" style="width: 20rem; height: 20rem; " role="status">
+        </div>
+    </div>
+</div>
+@*<link rel="stylesheet" href="~/css/Style.css" asp-append-version="true" />*@
+<div align="center">
+    <a href="@Url.Action("GetAll", "Pokedex")"><img src="~/css/Título.png" class="Title" /></a>
+</div>
+
+@using (Html.BeginForm("GetAll", "Pokedex", FormMethod.Post, new { enctype = "multipart/form-data" }))
+{
+    <div class="row">
+        <div class="col-md-3">
+            <div class="input-group">
+                <span class="input-group-addon" id="basic-addon1"><i class="fa-solid fa-signature" style="color:darkcyan"></i></span>
+                @Html.TextBoxFor(model => model.id, new { @class = "form-control", @placeholder="ID", @id = "txtId" })
+                @Html.ValidationMessageFor(model => model.id,"", new { @class = "text-danger"})
+            </div>
+        </div>
+
+        <div class="col-md-2">
+            <div class="input-group">
+                <input type="submit" value="Buscar" class="btn btn-success" />
+            </div>
+        </div>
+    </div>
+}
+
+<div class="row row-cols-2 row-cols-md-3 ">
+    @foreach (ML.Pokemon pokemon in Model.Pokemons)
+    {
+        <div class="container mx-auto mt-4">
+            <div class="col">
+                <div class="card" style="width: 18rem;">
+                    <img src="@pokemon.sprites.front_default" class="card-img-top" alt="...">
+                    <div class="card-body">
+                        <h5 class="card-title">@pokemon.id</h5>
+                        <p class="card-text">@pokemon.Name</p>
+                        <a href="@Url.Action("Detalles", "Pokedex", new { url = pokemon.url })" class="btn btn-info"><i class="fab fa-github"></i> Detalles</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
