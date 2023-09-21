@@ -3,50 +3,184 @@
     ViewData["Title"] = "GetAll";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<div class="loader" style="display: none" id="fade">
-    <div class="text-center">
-        <div class="spinner-border" id="img" style="width: 20rem; height: 20rem; " role="status">
-        </div>
-    </div>
-</div>
-@*<link rel="stylesheet" href="~/css/Style.css" asp-append-version="true" />*@
 <div align="center">
-    <a href="@Url.Action("GetAll", "Pokedex")"><img src="~/css/Título.png" class="Title" /></a>
+    <a href="@Url.Action("GetAll", "Pokedex")"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png" class="Title" width="120" height="45"/></a>
 </div>
-
-@using (Html.BeginForm("GetAll", "Pokedex", FormMethod.Post, new { enctype = "multipart/form-data" }))
-{
-    <div class="row">
-        <div class="col-md-3">
-            <div class="input-group">
-                <span class="input-group-addon" id="basic-addon1"><i class="fa-solid fa-signature" style="color:darkcyan"></i></span>
-                @Html.TextBoxFor(model => model.id, new { @class = "form-control", @placeholder="ID", @id = "txtId" })
-                @Html.ValidationMessageFor(model => model.id,"", new { @class = "text-danger"})
-            </div>
-        </div>
-
-        <div class="col-md-2">
-            <div class="input-group">
-                <input type="submit" value="Buscar" class="btn btn-success" />
-            </div>
-        </div>
+<!-- Modal de carga -->
+<div class="overlay" id="overlay" style="display:none">
+    <div class="loading-content">
+        <img src="https://64.media.tumblr.com/91a2b16f6d68cb4fa0ea89d82477fb20/11a93665ce417e1c-c8/s1280x1920/dd778603ab36e840576640f1641c93dc9d79ab25.gif" alt="Cargando..." />
+        <div id="loading-text"></div>
     </div>
-}
-
-<div class="row row-cols-2 row-cols-md-3 ">
-    @foreach (ML.Pokemon pokemon in Model.Pokemons)
-    {
-        <div class="container mx-auto mt-4">
-            <div class="col">
-                <div class="card" style="width: 18rem;">
-                    <img src="@pokemon.sprites.front_default" class="card-img-top" alt="...">
-                    <div class="card-body">
-                        <h5 class="card-title">@pokemon.id</h5>
-                        <p class="card-text">@pokemon.Name</p>
-                        <a href="@Url.Action("Detalles", "Pokedex", new { url = pokemon.url })" class="btn btn-info"><i class="fab fa-github"></i> Detalles</a>
-                    </div>
+</div>
+<!-- Modal de info -->
+    <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="ModalTitle">Modal title</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="ModalBody">
+                    
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Save changes</button>
                 </div>
             </div>
         </div>
+    </div>
+<style>
+    body {
+        background-color: #f0f0f0; /* Cambia este valor al color que desees */
     }
+    .overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5); /* Fondo semiopaco */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999; /* Z-index alto para que esté por encima de otros elementos */
+        backdrop-filter: blur(5px); /* Aplica un filtro de desenfoque al fondo */
+        -webkit-backdrop-filter: blur(5px); /* Para navegadores basados en Webkit como Safari */
+    }
+
+    .loading-content {
+        text-align: center;
+        background: transparent; /* Fondo transparente en lugar de blanco */
+        border-radius: 10px;
+        padding: 0; /* Elimina el espacio interno */
+        display: flex; /* Hacer que los elementos se centren verticalmente */
+        flex-direction: column; /* Apilar elementos verticalmente */
+        align-items: center; /* Centrar elementos horizontalmente */
+    }
+
+        .loading-content img {
+            max-width: 100px; /* Tamaño máximo de la imagen */
+            margin-bottom: 10px; /* Espacio entre la imagen y el spinner */
+        }
+
+    .spinner-border {
+        display: block; /* Hacer que el spinner sea un elemento de bloque */
+        margin-top: 10px; /* Espacio entre la imagen y el spinner */
+    }
+
+    #loading-text {
+        font-size: 24px;
+        font-weight: bold;
+        margin-top: 10px; /* Espacio entre la imagen y el texto */
+        color: yellow; /* Cambiar el color del texto a amarillo */
+        text-shadow: 2px 2px 4px blue; /* Agregar una sombra azul a cada letra */
+    }
+</style>
+
+<div class="container mt-4">
+    <div class="row " id="pokemonContainer">
+        <!-- Aquí se cargarán los Pokémon -->
+    </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+        $(document).ready(function () {
+            // Mostrar la pantalla de carga al cargar la página
+            $("#overlay").show();
+
+            // Texto que deseas mostrar y animar
+            var loadingText = "Cargando...";
+            var loadingElement = document.getElementById("loading-text");
+
+            function animateLoadingText() {
+                var index = 0;
+                var animationInterval = setInterval(function () {
+                    loadingElement.textContent += loadingText[index];
+                    index++;
+                    if (index === loadingText.length) {
+                        clearInterval(animationInterval);
+                        // Reinicia la animación después de un breve retraso
+                        setTimeout(function () {
+                            loadingElement.textContent = "";
+                            index = 0;
+                            animateLoadingText();
+                        }, 1000);
+                    }
+                }, 100);
+            }
+
+            // Inicia la animación cuando se muestra el overlay
+            animateLoadingText();
+
+            // Realiza la solicitud AJAX después de iniciar la animación
+            $.ajax({
+                url: "@Url.Action("GetPokemons","Pokedex")",
+                type: "GET",
+                success: function (data) {
+                    // La solicitud AJAX se ha completado con éxito, oculta la pantalla de carga
+                    $("#overlay").hide();
+
+                    // Agrega los Pokémon al contenedor
+                    var pokemonContainer = $("#pokemonContainer");
+                    data.pokemons.forEach(function (pokemon) {
+                        var cardHtml = `
+                        <div class="col">
+                                    <div class="card bg-dark  border-warning  mb-3 border-5 rounded-pill" style="width: 18rem;">
+                                    <a href="${pokemon.url}"> <img src="${pokemon.sprites.front_default}" class="card-img-top" alt="..." ></a>
+                                    <div class="card-body text-center">
+                                    <h5 class="card-title card-header text-center bg-secondary bg-gradient rounded-pill">${pokemon.name}</h5>
+                                    <p class="card-text">${pokemon.id}</p>
+                                     <button onclick="CargarInfo( ` + `'` + `${pokemon.url}` + `'` + `)">Boton</button>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" height="40" width="40" onclick="CargarInfo(${pokemon.url})"></a>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                        pokemonContainer.append(cardHtml);
+                });
+                },
+                error: function (error) {
+                    // Manejar errores si es necesario
+                    console.error("Error en la solicitud AJAX: ", error);
+                    // Ocultar la pantalla de carga en caso de error
+                    $("#overlay").hide();
+                }
+            });
+        });
+    function CargarInfo(url) {
+        $("#overlay").show();
+
+        $.ajax({
+            url: "@Url.Action("GetPokemons", "Pokedex")",
+            type: "GET",
+            data: { "url": url },
+            success: function (data) {
+                $("#overlay").hide();
+
+                // Actualiza el contenido del modal
+                $("#ModalTitle").text(data.name);
+
+                // Personaliza cómo deseas mostrar los detalles en el modal
+                var modalContent = `
+                        <p>ID: ${data.id}</p>
+                        <!-- Agrega más detalles aquí -->
+                    `;
+
+                $("#ModalBody").html(modalContent);
+
+                // Abre el modal
+                $("#Modal").modal("show");
+            },
+            error: function (error) {
+                // Manejar errores si es necesario
+                console.error("Error en la solicitud AJAX: ", error);
+                // Ocultar la pantalla de carga en caso de error
+                $("#overlay").hide();
+            }
+        });
+    };
+</script>
+
+

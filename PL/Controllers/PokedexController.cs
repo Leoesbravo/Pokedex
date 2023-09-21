@@ -16,7 +16,11 @@ namespace PL.Controllers
             _hostingEnvironment = hostingEnvironment;
         }
         [HttpGet]
-        public ActionResult GetAll(string? url)
+        public ActionResult GetAll()
+        {
+            return View();
+        }
+        public JsonResult GetPokemons(string? url)
         {
             Pokemon pokemon = new Pokemon();
             if (url != null)
@@ -30,7 +34,7 @@ namespace PL.Controllers
                     responseTask.Wait();
 
                     var result = responseTask.Result;
-
+                        
                     if (result.IsSuccessStatusCode)
                     {
                         var readTask = result.Content.ReadAsStringAsync();
@@ -59,7 +63,7 @@ namespace PL.Controllers
                         }
                     }
                 }
-                return View(pokemon);
+                return Json(pokemon);
             }
             else
             {
@@ -99,7 +103,7 @@ namespace PL.Controllers
                         }
                     }
                 }
-                return View(pokemon);
+                return Json(pokemon);
             }
         }
         public Pokemon ObtenerCadaUno(string url)
