@@ -41,26 +41,26 @@ namespace PL.Controllers
                         dynamic resultJSON = JObject.Parse(readTask.Result.ToString());
                         readTask.Wait();
                         pokemon.Pokemons = new List<object>();
+                      
+                        //foreach (var resultItem in resultJSON.pokemon)
+                        //{
+                        //    dynamic objeto = resultItem;
 
-                        foreach (var resultItem in resultJSON.pokemon)
-                        {
-                            dynamic objeto = resultItem;
+                        //    Pokemon pokemonItem = new Pokemon();
+                        //    pokemonItem.Name = objeto.pokemon.name;
+                        //    pokemonItem.url = objeto.pokemon.url;
 
-                            Pokemon pokemonItem = new Pokemon();
-                            pokemonItem.Name = objeto.pokemon.name;
-                            pokemonItem.url = objeto.pokemon.url;
+                        //    Pokemon pokemonsub = new Pokemon();
+                        //    pokemonsub = ObtenerCadaUno(pokemonItem.url);
 
-                            Pokemon pokemonsub = new Pokemon();
-                            pokemonsub = ObtenerCadaUno(pokemonItem.url);
+                        //    pokemonItem.id = pokemonsub.id;
+                        //    pokemonItem.sprites = new Sprites();
+                        //    pokemonItem.sprites.front_default = pokemonsub.sprites.front_default;
+                        //    pokemonItem.types = new Typee();
+                        //    pokemonItem.types.Tipos = pokemonsub.types.Tipos;
 
-                            pokemonItem.id = pokemonsub.id;
-                            pokemonItem.sprites = new Sprites();
-                            pokemonItem.sprites.front_default = pokemonsub.sprites.front_default;
-                            pokemonItem.types = new Typee();
-                            pokemonItem.types.Tipos = pokemonsub.types.Tipos;
-
-                            pokemon.Pokemons.Add(pokemonItem);
-                        }
+                        //    pokemon.Pokemons.Add(pokemonItem);
+                        //}
                     }
                 }
                 return Json(pokemon);
