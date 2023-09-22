@@ -13,5 +13,6 @@
         public string base_experience { get; set; }
         public string ability { get; set; }
         public List<object> Pokemons { get; set; }
+        public Habilidad Habilidad { get; set; }
     }
 }

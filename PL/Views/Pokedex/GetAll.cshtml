@@ -86,6 +86,75 @@
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
+    function CargarInfo(url) {
+        $("#overlay").show();
+
+        $.ajax({
+            url: "@Url.Action("GetPokemons", "Pokedex")",
+            type: "GET",
+            data: { "url": url },
+            success: function (data) {
+                $("#overlay").hide();
+
+                // Actualiza el contenido del modal
+                $("#ModalTitle").text(data.name);
+
+                var modalContent = `
+        <div class="row">
+            <div class="col text-center">
+                <img src="${data.sprites.front_default}" alt="Imagen del Pokémon">
+            </div>
+        </div>
+        <div class="row">
+            <div class="col text-center">
+                <p>Numero: ${data.id}</p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p><strong>Habilidades:</strong></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <ul>`;
+                $.each(data.habilidad.habilidades, function (i, habilidad) {
+                    modalContent += `
+                    <li>${habilidad.nombre}</li>`;
+                });
+                modalContent += `
+                </ul>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <p><strong>Estadisticas:</strong></p>
+            </div>
+        </div>
+    `;
+
+                // Divide las stats en dos columnas
+                $.each(data.stats.stats, function (i, stat) {
+                    if (i % 2 === 0) {
+                        // Inicio de una nueva fila para las stats
+                        modalContent += `</div></div><div class="row">`;
+                    }
+                    modalContent += `
+            <div class="col">
+                <p> ${stat.nombre}:</p>
+                <div class="progress">
+                    <div class="progress-bar" role="progressbar" style="width: ${stat.base_stat}%;" aria-valuenow="${stat.base_stat}" aria-valuemin="0" aria-valuemax="255">${stat.base_stat}</div>
+                </div>
+            </div>
+        `;
+                });
+
+                $("#ModalBody").html(modalContent);
+                $("#Modal").modal("show");
+
+            }
+        });
+    };
         $(document).ready(function () {
             // Mostrar la pantalla de carga al cargar la página
             $("#overlay").show();
@@ -128,12 +197,11 @@
                         var cardHtml = `
                         <div class="col">
                                     <div class="card bg-dark  border-warning  mb-3 border-5 rounded-pill" style="width: 18rem;">
-                                    <a href="${pokemon.url}"> <img src="${pokemon.sprites.front_default}" class="card-img-top" alt="..." ></a>
+                                        <img src="${pokemon.sprites.front_default}" class="card-img-top" alt="..."onclick="CargarInfo( ` + `'` + `${pokemon.url}` + `'` + `)" >
                                     <div class="card-body text-center">
                                     <h5 class="card-title card-header text-center bg-secondary bg-gradient rounded-pill">${pokemon.name}</h5>
                                     <p class="card-text">${pokemon.id}</p>
-                                     <button onclick="CargarInfo( ` + `'` + `${pokemon.url}` + `'` + `)">Boton</button>
-                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" height="40" width="40" onclick="CargarInfo(${pokemon.url})"></a>
+                                    <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" height="40" width="40" onclick="CargarInfo( ` + `'` + `${pokemon.url}` + `'` + `)"></a>
                                 </div>
                             </div>
                         </div>
@@ -149,38 +217,7 @@
                 }
             });
         });
-    function CargarInfo(url) {
-        $("#overlay").show();
-
-        $.ajax({
-            url: "@Url.Action("GetPokemons", "Pokedex")",
-            type: "GET",
-            data: { "url": url },
-            success: function (data) {
-                $("#overlay").hide();
-
-                // Actualiza el contenido del modal
-                $("#ModalTitle").text(data.name);
-
-                // Personaliza cómo deseas mostrar los detalles en el modal
-                var modalContent = `
-                        <p>ID: ${data.id}</p>
-                        <!-- Agrega más detalles aquí -->
-                    `;
-
-                $("#ModalBody").html(modalContent);
-
-                // Abre el modal
-                $("#Modal").modal("show");
-            },
-            error: function (error) {
-                // Manejar errores si es necesario
-                console.error("Error en la solicitud AJAX: ", error);
-                // Ocultar la pantalla de carga en caso de error
-                $("#overlay").hide();
-            }
-        });
-    };
+    
 </script>
 
 

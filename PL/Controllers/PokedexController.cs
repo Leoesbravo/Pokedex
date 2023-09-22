@@ -40,27 +40,30 @@ namespace PL.Controllers
                         var readTask = result.Content.ReadAsStringAsync();
                         dynamic resultJSON = JObject.Parse(readTask.Result.ToString());
                         readTask.Wait();
-                        pokemon.Pokemons = new List<object>();
-                      
-                        //foreach (var resultItem in resultJSON.pokemon)
-                        //{
-                        //    dynamic objeto = resultItem;
 
-                        //    Pokemon pokemonItem = new Pokemon();
-                        //    pokemonItem.Name = objeto.pokemon.name;
-                        //    pokemonItem.url = objeto.pokemon.url;
+                        pokemon.Habilidad = new Habilidad();
+                        pokemon.Habilidad.Habilidades = new List<object>();
 
-                        //    Pokemon pokemonsub = new Pokemon();
-                        //    pokemonsub = ObtenerCadaUno(pokemonItem.url);
-
-                        //    pokemonItem.id = pokemonsub.id;
-                        //    pokemonItem.sprites = new Sprites();
-                        //    pokemonItem.sprites.front_default = pokemonsub.sprites.front_default;
-                        //    pokemonItem.types = new Typee();
-                        //    pokemonItem.types.Tipos = pokemonsub.types.Tipos;
-
-                        //    pokemon.Pokemons.Add(pokemonItem);
-                        //}
+                        pokemon.id = resultJSON.id;
+                        pokemon.Name = resultJSON.name;
+                        foreach(dynamic ability in resultJSON.abilities)
+                        {
+                            ML.Habilidad habilidad = new Habilidad();
+                            habilidad.Nombre = ability.ability.name;
+                            pokemon.Habilidad.Habilidades.Add(habilidad);                          
+                        }
+                        pokemon.sprites = new Sprites();
+                        var sprite = resultJSON.sprites;
+                        pokemon.sprites.front_default = resultJSON.sprites.other.home.front_default;
+                        pokemon.stats = new Stat();
+                        pokemon.stats.Stats = new List<object>();
+                        foreach (dynamic stats in resultJSON.stats)
+                        {
+                            ML.Stat stat = new Stat();
+                            stat.Nombre = stats.stat.name;
+                            stat.base_stat = stats.base_stat;
+                            pokemon.stats.Stats.Add(stat);
+                        }
                     }
                 }
                 return Json(pokemon);
