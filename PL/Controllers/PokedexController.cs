@@ -64,6 +64,14 @@ namespace PL.Controllers
                             stat.base_stat = stats.base_stat;
                             pokemon.stats.Stats.Add(stat);
                         }
+                        pokemon.types = new Typee();
+                        pokemon.types.Tipos = new List<object>();
+                        foreach(dynamic type in resultJSON.types)
+                        {
+                            ML.Typee tipo = new Typee();
+                            tipo.Nombre = type.type.name;
+                            pokemon.types.Tipos.Add(tipo);
+                        }
                     }
                 }
                 return Json(pokemon);
