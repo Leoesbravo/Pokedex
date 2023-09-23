@@ -145,14 +145,11 @@ namespace PL.Controllers
 
                         pokemonObtener.types = new Typee();
                         pokemonObtener.types.Tipos = new List<object>();
-                        foreach (var Tipo in resultItem.types)
+                        foreach (dynamic type in resultJSON.types)
                         {
-                            Typee type = new Typee();
-                            type.slot = Tipo.slot;
-
-                            type.type = new Type2();
-                            type.type.Name = Tipo.type.name;
-                            pokemonObtener.types.Tipos.Add(type);
+                            ML.Typee tipo = new Typee();
+                            tipo.Nombre = type.type.name;
+                            pokemonObtener.types.Tipos.Add(tipo);
                         }
 
                         pokemonObtener.sprites = new Sprites();

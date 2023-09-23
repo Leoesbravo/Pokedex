@@ -3,6 +3,7 @@
     ViewData["Title"] = "GetAll";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
+
 <div align="center">
     <a href="@Url.Action("GetAll", "Pokedex")"><img src="https://upload.wikimedia.org/wikipedia/commons/thumb/9/98/International_Pok%C3%A9mon_logo.svg/1200px-International_Pok%C3%A9mon_logo.svg.png" class="Title" width="120" height="45"/></a>
 </div>
@@ -15,9 +16,9 @@
 </div>
 <!-- Modal de info -->
     <div class="modal fade" id="Modal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
+        <div class="modal-dialog modal-dialog-centered ">
+            <div class="modal-content ">
+                <div class="modal-header bg-secondary">
                     <h1 class="modal-title fs-5" id="ModalTitle">Modal title</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -85,7 +86,28 @@
     </div>
 </div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@@popperjs/core@2.11.8/dist/umd/popper.min.js"></script>
 <script>
+    var typeIcons = {
+        bug: "bug",
+        dark: "dark",
+        dragon: "dragon",
+        electric: "electric",
+        fire: "fire",
+        fairy: "fairy",
+        fighting: "fighting",
+        flying: "flying",
+        ghost: "ghost",
+        grass: "grass",
+        ground: "ground",
+        ice: "ice",
+        normal: "normal",
+        poison: "poison",
+        psychic: "psychic",
+        rock: "rock",
+        steel: "steel",
+        water: "water"
+    };
     function CargarInfo(url) {
         $("#overlay").show();
 
@@ -100,9 +122,9 @@
                 $("#ModalTitle").text(data.name);
 
                 var modalContent = `
-        <div class="row">
-            <div class="col text-center">
-                <img src="${data.sprites.front_default}" alt="Imagen del Pokémon">
+        <div class="row text-center">
+            <div class="col">
+                <img src="${data.sprites.front_default}" alt="Imagen del Pokémon" height="350px" width="350px">
             </div>
         </div>
         <div class="row">
@@ -110,11 +132,24 @@
                 <p>Numero: ${data.id}</p>
             </div>
         </div>
+            <hr/>
             <div class="row">
                 <div class="col text-center">
                     <p><strong>Tipo</strong></p>
                 </div>
             </div>
+            <div class="text-center">
+                <div class="row">
+                `;
+                $.each(data.types.tipos, function (i, tipo) {
+                    var tipoNombre = tipo.nombre.toLowerCase(); // Convierte el nombre del tipo a minúsculas
+                    var iconClass = typeIcons[tipoNombre]; // Obtiene la clase CSS del objeto typeIcons
+                    modalContent += `<div class="icon ${iconClass}"><img src="/icons/${iconClass}.svg"/></div>`;
+                });
+                modalContent += `
+             </div>
+             </div>
+             <hr/>
         <div class="row">
                 <div class="col  text-center">
                 <p><strong>Habilidades:</strong></p>
@@ -131,6 +166,7 @@
                 </ul>
             </div>
         </div>
+            <hr/>
         <div class="row">
             <div class="col text-center">
                 <p><strong>Estadisticas:</strong></p>
@@ -146,10 +182,12 @@
                     }
                     modalContent += `
             <div class="col">
-                <p> ${stat.nombre}:</p>
+           
                 <div class="progress">
+                        
                     <div class="progress-bar" role="progressbar" style="width: ${stat.base_stat}%;" aria-valuenow="${stat.base_stat}" aria-valuemin="0" aria-valuemax="255">${stat.base_stat}</div>
                 </div>
+                     <p> ${stat.nombre}</p>
             </div>
         `;
                 });
@@ -161,6 +199,7 @@
         });
     };
         $(document).ready(function () {
+            
             // Mostrar la pantalla de carga al cargar la página
             $("#overlay").show();
 
@@ -201,17 +240,30 @@
                     data.pokemons.forEach(function (pokemon) {
                         var cardHtml = `
                         <div class="col">
-                                    <div class="card bg-dark  border-warning  mb-3 border-5 rounded-pill" style="width: 18rem;">
-                                        <img src="${pokemon.sprites.front_default}" class="card-img-top" alt="..."onclick="CargarInfo( ` + `'` + `${pokemon.url}` + `'` + `)" >
+                                    <div class="card bg-dark  border-warning  mb-3 border-5 rounded-5" style="width: 18rem;">
+                                     <img src="${pokemon.sprites.front_default}" class="card-img-top" alt="..."onclick="CargarInfo( ` + `'` + `${pokemon.url}` + `'` + `)" >
                                     <div class="card-body text-center">
                                     <h5 class="card-title card-header text-center bg-secondary bg-gradient rounded-pill">${pokemon.name}</h5>
                                     <p class="card-text">${pokemon.id}</p>
+                                    <div class="text-center">
+                                    <div class="row">
+                                    `;
+                                    $.each(pokemon.types.tipos, function (i, tipo) {
+                                        var tipoNombre = tipo.nombre.toLowerCase(); // Convierte el nombre del tipo a minúsculas
+                                        var iconClass = typeIcons[tipoNombre]; // Obtiene la clase CSS del objeto typeIcons
+                        cardHtml += `<div class="icon ${iconClass}" style="height: 50px; width:50px"><img src="/icons/${iconClass}.svg"   data-bs-toggle="tooltip" data-bs-placement="top" data-bs-custom-class="custom-tooltip" data-bs-title="${tipoNombre}"/></div>`;
+                                    });
+                                    cardHtml += `
+                                 </div>
+                                 </div>
                                     <img src="https://upload.wikimedia.org/wikipedia/commons/thumb/5/53/Pok%C3%A9_Ball_icon.svg/1200px-Pok%C3%A9_Ball_icon.svg.png" height="40" width="40" onclick="CargarInfo( ` + `'` + `${pokemon.url}` + `'` + `)"></a>
                                 </div>
                             </div>
                         </div>
                     `;
                         pokemonContainer.append(cardHtml);
+                    const tooltipTriggerList = document.querySelectorAll('[data-bs-toggle="tooltip"]')
+                    const tooltipList = [...tooltipTriggerList].map(tooltipTriggerEl => new bootstrap.Tooltip(tooltipTriggerEl))
                 });
                 },
                 error: function (error) {
