@@ -20,7 +20,7 @@ namespace PL.Controllers
         {
             return View();
         }
-        public JsonResult GetPokemons(string? url)
+        public JsonResult GetPokemons(string? url, int? offset)
         {
             Pokemon pokemon = new Pokemon();
             if (url != null)
@@ -78,12 +78,20 @@ namespace PL.Controllers
             }
             else
             {
+                if(offset == null)
+                {
+                    offset = 0;
+                }
+                else
+                {
+                    offset += 20;
+                }
                 using (var client = new HttpClient())
                 {
                     string urlApi = _configuration["urlApi"];//Colocar la url
                     client.BaseAddress = new Uri(urlApi);
 
-                    var responseTask = client.GetAsync("pokemon/?limit=21&offset=0");
+                    var responseTask = client.GetAsync("pokemon/?limit=21&offset=" + offset);
                     responseTask.Wait();
 
                     var result = responseTask.Result;
